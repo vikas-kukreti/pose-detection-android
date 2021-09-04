@@ -14,6 +14,7 @@
         android:background="@color/black"
         android:contentDescription="@string/pose_image"/>
 
+
     <EditText
         android:layout_width="match_parent"
         android:layout_height="0dp"

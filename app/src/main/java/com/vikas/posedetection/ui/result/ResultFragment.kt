@@ -1,5 +1,6 @@
 package com.vikas.posedetection.ui.result
 
+import android.graphics.Bitmap
 import android.graphics.PointF
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -8,10 +9,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.gms.common.util.JsonUtils
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.vikas.posedetection.R
+import com.vikas.posedetection.data.AppRepository
 import com.vikas.posedetection.databinding.ResultFragmentBinding
 import org.json.JSONObject
 import kotlin.math.atan2
@@ -64,9 +69,9 @@ class ResultFragment : Fragment() {
             var string = ""
             val gson = Gson()
 
-
             string += "leftShoulder(A): " + gson.toJson(leftShoulder.position, PointF::class.java) + "\n"
             string += "rightShoulder(B): " + gson.toJson(rightShoulder.position, PointF::class.java) + "\n\n"
+
 
             string += "leftElbow(C): " + gson.toJson(leftElbow.position, PointF::class.java) + "\n"
             string += "rightElbow(D): " + gson.toJson(rightElbow.position, PointF::class.java) + "\n\n"
@@ -89,12 +94,29 @@ class ResultFragment : Fragment() {
             string += "rightLegAngle(J): $rightLegAngle\n"
 
             binding.editText.setText(string)
+            viewModel.poseBitmap.value?.let {bitmap->
+                uploadPoseData(bitmap, string)
+            }
         })
         viewModel.poseBitmap.observe(viewLifecycleOwner, {
             if(it == null) return@observe
             binding.imageView.setImageBitmap(it)
+
         })
     }
+
+    private fun uploadPoseData(bitmap: Bitmap, string: String) {
+        viewModel.repository.uploadPoseData(requireContext(), bitmap, string) {
+            if(it.status == 1) {
+                Snackbar.make(binding.root, it.message, Snackbar.LENGTH_SHORT).show()
+            } else {
+                Snackbar.make(binding.root, it.message, Snackbar.LENGTH_SHORT).setAction("Retry"){
+                    uploadPoseData(bitmap, string)
+                }.show()
+            }
+        }
+    }
+
     private fun getAngle(
         firstPoint: PoseLandmark,
         midPoint: PoseLandmark,
@@ -116,6 +138,4 @@ class ResultFragment : Fragment() {
         }
         return result
     }
-
-
 }

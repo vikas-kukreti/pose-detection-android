@@ -33,12 +33,15 @@
             android:layout_centerHorizontal="true"
             android:src="@drawable/ic_baseline_camera_24" />
 
+        <ProgressBar
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:visibility="invisible"
+            android:indeterminateDuration="100"
+            android:layout_centerInParent="true"
+            android:id="@+id/progress"/>
+
     </RelativeLayout>
 
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        android:id="@+id/progress"/>
 </androidx.appcompat.widget.LinearLayoutCompat>

@@ -1,15 +1,17 @@
 package com.vikas.posedetection.ui.camera
 
-import android.graphics.*
-import android.media.Image
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
@@ -20,14 +22,12 @@ import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.PictureResult
 import com.vikas.posedetection.R
 import com.vikas.posedetection.databinding.CameraFragmentBinding
-import com.vikas.posedetection.ui.result.ResultFragment
-import org.json.JSONObject
-import java.nio.ByteBuffer
 
 
 class CameraFragment : Fragment() {
 
     companion object {
+        @JvmStatic
         fun newInstance() = CameraFragment()
     }
 
@@ -51,7 +51,7 @@ class CameraFragment : Fragment() {
             .setDetectorMode(AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE)
             .build()
         poseDetector = PoseDetection.getClient(options)
-        binding.camera.setLifecycleOwner(this)
+        binding.camera.setLifecycleOwner(viewLifecycleOwner)
         binding.camera.addCameraListener(object: CameraListener() {
             override fun onPictureTaken(result: PictureResult) {
                 super.onPictureTaken(result)
@@ -78,10 +78,9 @@ class CameraFragment : Fragment() {
         val inputImage = InputImage.fromBitmap(bitmap, 0)
         poseDetector.process(inputImage).addOnSuccessListener {
             processPose(it)
-            binding.progress.visibility = View.GONE
+            binding.progress.visibility = View.INVISIBLE
         }.addOnFailureListener {
-            Log.d("VIKAS", "detectPose: " + it)
-            binding.progress.visibility = View.GONE
+            binding.progress.visibility = View.INVISIBLE
         }
     }
 
@@ -163,7 +162,7 @@ class CameraFragment : Fragment() {
             )
 
             viewModel.setPoseData(pose)
-            parentFragmentManager.beginTransaction().replace(R.id.container, ResultFragment.newInstance()).commit()
+            findNavController().navigate(R.id.action_cameraFragment_to_resultFragment)
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Pose Detection Failure", Toast.LENGTH_SHORT).show()
         }

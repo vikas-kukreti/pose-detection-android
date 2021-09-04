@@ -11,4 +11,5 @@ class ResultViewModel : ViewModel() {
     val pose: LiveData<Pose> get() =  repository.pose
     val poseBitmap: LiveData<Bitmap> get() =  repository.poseBitmap
 
+
 }
